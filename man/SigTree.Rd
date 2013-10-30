@@ -67,6 +67,7 @@ bldc:
 \code{Sp = (2*hp-ha-hb)/(2*hp)}
 
 The tightness of each branch is computed by chosen statistics, and further evaluated by permutation p-values.
+With \code{Ptail} equals TRUE(default), a total number of 1000 permutation tests are run. Otherwise, a number of \code{N}*1000 permutation tests are run (\code{N} is the sample size).
 }
 \value{
 If \code{rand.fun} is set to NA, then this function returns the internal tree structure numeric table with extra columns of specified statistics.

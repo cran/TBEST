@@ -35,7 +35,7 @@ Guoli Sun
 \dontrun{
 data(leukemia)
 mytable<-SigTree(data.matrix(leukemia),mystat="all",
-       mymethod="ward",mymetric="euclidean",rand.fun="shuffle.factor",
+       mymethod="ward",mymetric="euclidean",rand.fun="shuffle.column",
        distrib="Rparallel",njobs=2,Ptail=TRUE)
 class(mytable)
 mypartition<-PartitionTree(x=mytable,sigp=0.0001,statname="fldc",fdr=FALSE)

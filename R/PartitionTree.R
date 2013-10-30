@@ -28,17 +28,21 @@ PartitionTree<-function(x,sigp=0.05,statname="fldc",fdr=FALSE){
 			gain<-0	
 			newc<-NULL
 			cind<-NULL
-		if(indextable[nrow(indextable),"index1"]%in%candidates&
-			!(indextable[nrow(indextable),"index2"]%in%candidates)){
+		for(firstsplit in c(nrow(indextable),indextable[nrow(indextable),"index1"],indextable[nrow(indextable),"index2"])){
+		if(firstsplit>0){
+		if(indextable[firstsplit,"index1"]%in%candidates&
+			!(indextable[firstsplit,"index2"]%in%candidates)){
 				gain<-1
 				lind<-lind+1
-				newc<-c(newc,indextable[nrow(indextable),"index2"])
+				newc<-c(newc,indextable[firstsplit,"index2"])
 		}
-		if(indextable[nrow(indextable),"index2"]%in%candidates&
-			!(indextable[nrow(indextable),"index1"]%in%candidates)){
+		if(indextable[firstsplit,"index2"]%in%candidates&
+			!(indextable[firstsplit,"index1"]%in%candidates)){
 				gain<-1
 				lind<-lind+1
-				newc<-c(newc,indextable[nrow(indextable),"index1"])
+				newc<-c(newc,indextable[firstsplit,"index1"])
+		}
+		}
 		}
 		for(i in 1:length(candidates))if(candidates[i]>0){
 			if(indextable[candidates[i],"index1"]%in%candidates&

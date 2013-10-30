@@ -10,7 +10,7 @@ Description: This function provides a visual view of the hierarchical structure,
 }
 \usage{
 \method{plot}{best}(x,mystat="fldc",sigp=0.05,partition=NA,print.num=TRUE,
-	float=0.01,col.best=c(2,3),cex.best=0.8,font.best=NULL,
+	print.lab=TRUE,float=0.01,col.best=c(2,3),cex.best=0.8,font.best=NULL,
 	main=NULL,sub=NULL,xlab=NULL,...)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -29,6 +29,9 @@ An object of class \code{partition}, such as computed by the \code{\link{Partiti
 } 
 \item{print.num}{
 Logical. If true, the branch numbers will be indicated.
+}
+\item{print.lab}{
+Logical. If true, the labels will be displayed at the bottom of dendrogram.
 }
 \item{float}{
 A numeric value that can change the vertical location of pvalues.
@@ -85,7 +88,7 @@ Guoli Sun
 \dontrun{
 data(leukemia)
 mytable<-SigTree(data.matrix(leukemia),mystat="all",
-        mymethod="ward",mymetric="euclidean",rand.fun="shuffle.factor",
+        mymethod="ward",mymetric="euclidean",rand.fun="shuffle.column",
         distrib="Rparallel",njobs=2,Ptail=TRUE)
 plot(x=mytable,mystat="fldc")
 mypartition<-PartitionTree(x=mytable,sigp=0.0001,statname="fldc",fdr=FALSE)
