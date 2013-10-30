@@ -5,20 +5,20 @@
 An object of class "partition"
 }
 \description{
-Description: This object contains four variables, including info on detailed partition of tree.
+Description: This object is a list of four items, which jointly specify a detailed partition of a hierarchical tree into tight branches.
 }
 \value{
+\item{Call}{
+An object of class Call, specifying the function call which generated the list.
+}
 \item{best}{
 An object of class "best", see \code{\link{best}} for more info.
 }
-\item{statistic}{
-A character string suggesting which statistic is used to evaluate the branches.
-}
-\item{pvalue}{
-A numeric value specifying the significance level.
+\item{sigvalue}{
+A two-column matrix, with one row per each internal node of the tree. The first column enumerates the nodes. The second column profides the significance estimate for the tightness of the node.
 }
 \item{partition}{
-If a most detailed partition of the tree exists, this is a two-column index table. First column is the sample label, and the second column is the corresponding subtype index, in terms of branch number. If there's no such partition, this is NA.
+A two-column data frame specifying the partitition. The first column is a character vector with the names of the leaves. The second column provides the number of the part to which the leaf belongs.
 }
 %%  If it is a LIST, use
 %%  \item{comp1 }{Description of 'comp1'}
@@ -26,7 +26,7 @@ If a most detailed partition of the tree exists, this is a two-column index tabl
 %% ...
 }
 \author{
-Guoli Sun
+Guoli Sun, Alex Krasnitz
 }
 \seealso{
 \code{\link{PartitionTree}},\code{\link{best}},\code{\link{SigTree}}
@@ -36,9 +36,10 @@ Guoli Sun
 data(leukemia)
 mytable<-SigTree(data.matrix(leukemia),mystat="all",
        mymethod="ward",mymetric="euclidean",rand.fun="shuffle.column",
-       distrib="Rparallel",njobs=2,Ptail=TRUE)
+       distrib="Rparallel",njobs=2,Ptail=TRUE,tailmethod="ML")
 class(mytable)
-mypartition<-PartitionTree(x=mytable,sigp=0.0001,statname="fldc",fdr=FALSE)
+mypartition<-PartitionTree(x=mytable,siglevel=0.001,statname="fldc",
+       sigtype="raw")
 class(mypartition)
 names(mypartition)
 }

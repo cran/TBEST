@@ -1,7 +1,5 @@
 TreeStat <-
-function(myinput,mystat="all",method="complete",metric="euclidean"){
-        #if(is.na(match(method,c("ward","single","complete","average"))))stop("Inappropriate clustering method")
-        #if(is.na(match(metric,c("euclidean","manhattan","pearson","kendall","spearman"))))stop("Inappropriate distance method")
+function(myinput,mystat,method="complete",metric="euclidean"){
         #index table
         if(data.class(myinput)=="dist")hc<-hclust(myinput,method=method)
         if(data.class(myinput)=="matrix"){
@@ -79,8 +77,8 @@ function(myinput,mystat="all",method="complete",metric="euclidean"){
         bldc[is.na(bldc)]<-0
         #output statistics
 	indextable<-cbind(indextable,clustersize,fldc,bldc,fldcc)
-        if(mystat=="all")return(indextable)
-	if(mystat!="all"){
+        if(any(mystat=="all"))return(indextable)
+	if(!any(mystat=="all")){
 		m<-4+match(mystat,c("fldc","bldc","fldcc"))
 		indextable<-indextable[,c(1:4,m)]
 		return(indextable)

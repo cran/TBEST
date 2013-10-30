@@ -22,6 +22,7 @@ Pvalue<-function(mystat,method="ML",Nexcmax=150){
 	P<-initial[[1]]
 	dummy<-initial[[2]]
 	k<-initial[[3]]
+	if(!is.na(k)){
 	if(!(k>=range[1]&k<=range[2])){
 		c<-0
 		while(is.na(k)|!(k>=range[1]&k<=range[2])){
@@ -97,5 +98,7 @@ Pvalue<-function(mystat,method="ML",Nexcmax=150){
 			Z_opt<-Zvec[j]
 		}
 	}
-	return(list(P_opt,Pci_opt,k_opt))
+	return(P_opt)
+	}else{return(P)}
+	#return(list(P_opt,Pci_opt,k_opt))
 }

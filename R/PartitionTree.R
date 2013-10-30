@@ -1,4 +1,4 @@
-PartitionTree<-function(x,sigp=0.05,statname="fldc",fdr=FALSE){
+PartitionTree<-function(x,siglevel=0.05,statname="fldc",sigtype=c("raw","corrected","fdr")){
 	clusterobj<-x	
 	data<-clusterobj$data
 	indextable<-clusterobj$indextable
@@ -6,14 +6,26 @@ PartitionTree<-function(x,sigp=0.05,statname="fldc",fdr=FALSE){
 	colnames(jointcounts)<-statname
 	candpack<-vector("list",length(statname))
 	names(candpack)<-statname
-	if(fdr){
-		p<-indextable[,as.character(paste("p",statname,sep=""))]
-		qobj<-qvalue::qvalue(p[!is.na(p)],fdr.level=sigp)
-		sigp<-max(qobj$pvalues[qobj$significant])
+	sigtype<-match.arg(sigtype)
+	mypmatrix<-matrix(nrow=nrow(indextable),ncol=2,data=0)
+	mypmatrix[,1]<-1:nrow(indextable)
+	p<-indextable[,paste("p",statname,sep="")]
+	op<-options(warn=-1)
+	if(sigtype=="raw"){
+		sigp<-siglevel
+		mypmatrix[,2]<-p
 	}
-	if(!fdr){
-		sigp<-1-(1-sigp)^(1/nrow(data))
+	if(sigtype=="fdr"){
+		qobj<-qvalue::qvalue(p[!is.na(p)],fdr.level=siglevel)
+		jointcounts[,statname]<-qobj$qvalues
+		sigp<-siglevel
+		mypmatrix[,2]<-qobj$qvalues
 	}
+	if(sigtype=="corrected"){
+		sigp<- 1-(1-siglevel)^(1/(nrow(data)-2))
+		mypmatrix[,2]<- 1-(1-p)^(nrow(data)-2)
+	}
+	dimnames(mypmatrix)[[2]]<-c("branch_index",sigtype)
 	if(substring(statname,first=1,last=1)=="f")
 		candidates<-which(jointcounts[,statname]<sigp) #forward derivatives
 	if(substring(statname,first=1,last=1)!="f")
@@ -143,14 +155,15 @@ mytypes<-names
 mytypes<-data.frame(cbind(dimnames(data)[[1]],as.numeric(mytypes)),stringsAsFactors=FALSE)
 mytypes[,2]<-as.numeric(mytypes[,2])
 dimnames(mytypes)[[2]]<-c("ID","index")
-
 mypartition<-vector(mode="list",length=4)
-names(mypartition)<-c("best","statistic","pvalue","partition")
+names(mypartition)<-c("Call","best","sigvalue","partition")
+mypartition$Call<-match.call()
 mypartition$best<-x
-mypartition$statistic<-statname
-mypartition$pvalue<-sigp
+#mypartition$statistic<-statname
+mypartition$sigvalue<-mypmatrix
 if(all(mytypes[,2]>0)){mypartition$partition<-mytypes
-}else{mypartition$partition<-NA}
+}else{mypartition$partition<-mytypes;mypartition$partition[,2]<-nrow(mytypes)-1}
 class(mypartition)<-"partition"
+options(op)
 return(mypartition)
 }

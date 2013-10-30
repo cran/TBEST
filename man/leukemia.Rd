@@ -9,7 +9,7 @@ This data set represents mRNA expression of 500 genes in 38 patient cases of leu
 }
 \usage{data(leukemia)}
 \format{
-A data frame with 38 observations of 500 variables.
+A data frame with 38 observations (rows) of 500 variables (columns).
 }
 \details{
 Bone marrow samples obtained from acute leukemia patients at the time of diagnosis.
@@ -19,7 +19,10 @@ http://www.broadinstitute.org/cgi-bin/cancer/datasets.cgi
 }
 \references{
 T.R. Golub, D.K. Slonim et al(1999)
-Molecular Classification of Cancer: Class Discovery and Class Prediction by Gene Expression
+Molecular Classification of Cancer: Class Discovery and Class Prediction by Gene Expression;				
+
+Stefano Monti, Pablo Tamayo, Jill Mesirov, and Todd Golub(2003)
+Consensus Clustering: A resampling-based method for class discovery and visualization of gene expression microarray data
 }
 \examples{
 data(leukemia)

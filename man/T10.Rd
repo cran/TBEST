@@ -9,7 +9,7 @@ This data set summarizes DNA copy number variation in 100 individual cancer cell
 }
 \usage{data(T10)}
 \format{
-   A data frame with 101 rows and 354 columns. Each column corresponds to a core. The first row contains the chromosome number for each core. Then from second row, each row represent a single cancer cell.
+   A data frame with 101 rows and 354 columns. Each column corresponds to a core.  The first row is integer and contains the chromosome number for each core. The remaining rows are numeric, with values between 0 and 1, and each represents a DNA copy number profile of a cell.
 }
 \details{
 Please remove the first row before computing the distance matrix.

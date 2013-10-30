@@ -1,6 +1,6 @@
 RandTree <-
 function(mydata,mystat,mymethod,mymetric,rand.fun=c("shuffle.column","shuffle.block",
-"define.function"),by.block=NA){
+"define.function"),by.block=NA,...){
         myinput<-mydata$myinput
         ntest<-mydata$nperm
         indextable<-TreeStat(myinput,mystat=mystat,method=mymethod,metric=mymetric)
@@ -36,7 +36,7 @@ function(mydata,mystat,mymethod,mymetric,rand.fun=c("shuffle.column","shuffle.bl
                         #        }
                         #}
                         #myrdata<-t(myrdata)
-			myrdata<-define.function(myinput)
+			myrdata<-define.function(myinput,...)
 			if(nrow(myrdata)!=nrow(myinput)|ncol(myrdata)!=ncol(myinput)){
 				stop("define.function returns wrong dimension")
 			}
