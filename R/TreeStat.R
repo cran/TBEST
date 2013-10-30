@@ -1,15 +1,29 @@
 TreeStat <-
-function(myinput,mystat,method="complete",metric="euclidean"){
+function(myinput,mystat,method="complete",metric="euclidean",metric.args=list()){
         #index table
         if(data.class(myinput)=="dist")hc<-hclust(myinput,method=method)
         if(data.class(myinput)=="matrix"){
-                if(metric!="pearson"&metric!="kendall"&metric!="spearman"){
-                        hc<-hclust(dist(myinput,method=metric),method=method)
-                }
-                if(metric=="pearson"|metric=="kendall"|metric=="spearman"){
-                        hc<-hclust(as.dist(1-cor(t(myinput),method=metric,
-                                use="pairwise.complete.obs")),method=method)
-                }
+		if(metric=="define.metric"){
+			#define.metric<-match.fun(define.metric)
+			define.metric<-match.fun(metric)
+			mymetric.args<-vector("list",length(metric.args)+1)
+			mymetric.args[[1]]<-myinput
+			if(length(mymetric.args)>1){mymetric.args[2:length(mymetric.args)]<-
+				metric.args}
+			mydis<-do.call(define.metric,mymetric.args)
+			mydis<-data.matrix(mydis)
+			#mydis<-define.metric(myinput,...)
+                        hc<-hclust(as.dist(mydis),method=method)
+		}
+		else{
+                	if(metric!="pearson"&metric!="kendall"&metric!="spearman"){
+                        	hc<-hclust(dist(myinput,method=metric),method=method)
+                	}
+                	if(metric=="pearson"|metric=="kendall"|metric=="spearman"){
+                        	hc<-hclust(as.dist(1-cor(t(myinput),method=metric,
+                                	use="pairwise.complete.obs")),method=method)
+                	}
+		}
         }
         if(data.class(myinput)=="hclust")hc<-myinput
         if(data.class(myinput)!="dist"&data.class(myinput)!="matrix"&

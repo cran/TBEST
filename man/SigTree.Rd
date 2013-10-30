@@ -12,7 +12,8 @@ SigTree(myinput,mystat=c("all","fldc","bldc","fldcc"),
         mymethod="complete",mymetric="euclidean",rand.fun=NA,
         by.block=NA,distrib=c("vanilla","Rparallel"),Ptail=TRUE,
         tailmethod=c("ML","MOM"),njobs=1,seed=NA,
-        Nperm=ifelse(Ptail,1000,1000*nrow(myinput)),...)
+        Nperm=ifelse(Ptail,1000,1000*nrow(myinput)),
+        metric.args=list(),rand.args=list())
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -27,7 +28,7 @@ A character string specifying the linkage method for hierarchical clustering, to
 }
   \item{mymetric}{
 A character string specifying the definition of dissimilarity (distance) among the data items. The options, in addition to those for the argument \code{method} of the \code{dist} functiton, are \code{"pearson"},\code{"kendall"}, and \code{"spearman"}. If one of the latter three is chosen, the distances are computed as \code{as.dist(1 - } 
-\cr \code{cor(myinput))}, with the corresponding option for the \code{method} argument of the \code{cor} function.
+\cr \code{cor(myinput))}, with the corresponding option for the \code{method} argument of the \code{cor} function.It can also be a character string specifying a user supplied dissimilarity (distance) function for \code{myinput}. See \code{details} and \code{examples} below for further explanation.
 }
   \item{rand.fun}{
 A character string specifying the permutation method to be applied to \code{myinput}. If NA(default), no permutation is performed. \code{"shuffle.column"} performs a random permutation independently within each column. With \code{"shuffle.block"}, a random permutation is performed independently within each block of columns, as specified by the \code{by.block} argument, and independently from the other blocks. It can also be a character string specifying a user supplied randomization function for \code{myinput}. See \code{details} and \code{examples} below for further explanation.
@@ -55,11 +56,14 @@ An optional single integer value, to be used to set the random number generator 
   \item{Nperm}{
 A single integer specifying the size of a sample from the null distribution. See \code{details} for the default sample size.
 }
-  \item{...}{
-Additional argument from user supplied randomization function. See \code{details} and \code{examples} below for further explanation.
+  \item{metric.args}{
+Additional arguments for user-supplied dissimilarity (distance) function. See \code{details} and \code{examples} below for further explanation.
+}
+  \item{rand.args}{
+Additional arguments for user-supplied randomization function. See \code{details} and \code{examples} below for further explanation.
 }
 }
-\details{
+  \details{
 When \code{rand.fun} is set to the name of a user supplied randomization function, the first argument of that function should be set to \code{myinput}. See examples below.
 
 The measures of tightness are defined as follows. Denote a node in the tree by \code{a}, its sibling node by \code{b}, and their parent node by \code{p}. Let their respective geights be \code{ha},\code{hb},\code{hp}. Finally, let \code{Sx} mean that the measure \code{S} is computed for the node \code{x}. Then the definitions are
@@ -91,7 +95,7 @@ Guoli Sun, Alex Krasnitz
 }
 \note{
 %When using generalized pareto p-value estimation, package \code{signal} should be installed in advance.
-If \code{rand.fun} is a customized randomization function, make sure you have read and write permission at your local working environment.
+If \code{mymetric} or \code{rand.fun} is a customized function, make sure you have read and write permission for your working directory.
 }
 \seealso{
 \code{\link{best}},\code{\link{plot.best}}
@@ -120,13 +124,15 @@ mydata<-T10[-1,]
 mytable<-SigTree(data.matrix(mydata),mystat="fldc",        
 	mymethod="ward",mymetric="euclidean",rand.fun="shuffle.block",
 	by.block=chrom,distrib="Rparallel",njobs=2,Ptail=TRUE,tailmethod="ML")
-#Randomization using a user supplied randomization function, 
-#with additional argument
-myrand<-function(x,y){
-	return(apply(x+y,2,sample))
-}
+#Compute dissimilarity using a user-supplied distance function,
+#and perform randomization using a user-supplied randomization function, 
+#with additional arguments. 
+#Both user-supplied functions are only useful as illustration.
+mydist<-function(x,y){return(dist(x)/y)}
+myrand<-function(x,z){return(apply(x+z,2,sample))}
 mytable<-SigTree(data.matrix(leukemia),mystat="fldc",
-        mymethod="ward",mymetric="euclidean",rand.fun="myrand",
-	distrib="Rparallel",njobs=2,Ptail=TRUE,tailmethod="MOM",y=3)
+mymethod="ward",mymetric="mydist",rand.fun="myrand",
+distrib="Rparallel",njobs=2,Ptail=TRUE,tailmethod="MOM",metric.args=list(3),
+rand.args=list(2))
 }
 }

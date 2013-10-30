@@ -16,10 +16,10 @@ PartitionTree<-function(x,siglevel=0.05,statname="fldc",sigtype=c("raw","correct
 		mypmatrix[,2]<-p
 	}
 	if(sigtype=="fdr"){
-		qobj<-qvalue::qvalue(p[!is.na(p)],fdr.level=siglevel)
-		jointcounts[,statname]<-qobj$qvalues
+		qobj<-fdrtool::fdrtool(p[!is.na(p)], statistic="pvalue",plot=FALSE,verbose=FALSE)
+		jointcounts[,statname]<-qobj$qval
 		sigp<-siglevel
-		mypmatrix[,2]<-qobj$qvalues
+		mypmatrix[,2]<-qobj$qval
 	}
 	if(sigtype=="corrected"){
 		sigp<- 1-(1-siglevel)^(1/(nrow(data)-2))

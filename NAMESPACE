@@ -1,3 +1,3 @@
 S3method(plot,best)
 export(SigTree,PartitionTree,plot.best,LeafContent)
-import(parallel,signal,qvalue)
+import(parallel,signal,fdrtool)

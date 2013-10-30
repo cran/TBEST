@@ -11,7 +11,8 @@ Description: A plot method for the class \code{\link{best}}.
 \usage{
 \method{plot}{best}(x,mystat="fldc",siglevel=0.05,sigtype=c("raw","corrected","fdr"),
         partition=NA,print.num=TRUE,print.lab=TRUE,float=0.01,col.best=c(2,3),
-        cex.best=0.8,font.best=NULL,main=NULL,sub=NULL,xlab=NULL,...)
+        cex.best=0.8,cex.leaf=0.8,font.best=NULL,main=NULL,sub=NULL,xlab=NULL,
+        metric.args=list(),...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -45,6 +46,9 @@ A character vector of length 2, indicating the colors to be used for the p-value
 \item{cex.best}{
 A numeric value for the text size of the branch labels.
 }
+\item{cex.leaf}{
+A numeric value for the text size of the leaf labels.
+}
 \item{font.best}{
 An integer which specifies font choice of text on the plot. See \code{?par} function parameter \code{font} for details.
 }
@@ -56,6 +60,9 @@ A character string specifying a subtitle of the plot.
 }
 \item{xlab}{
 A caracter string specifying the label of horizontal axis.
+}
+\item{metric.args}{
+Additional argument from user supplied dissimilariity(distance) function. See \code{details} and \code{examples} below for further explanation.
 }
 \item{...}{
 Further arguments to be passed on to the \code{plot} function.
@@ -98,6 +105,15 @@ mypartition<-PartitionTree(x=mytable,siglevel=0.001,statname="fldc",
         sigtype="raw")
 plot(x=mytable,mystat="fldc",partition=mypartition)
 plot(x=mytable,mystat="fldc",partition=mypartition,print.num=F)
+#with user-defined functions
+mydist<-function(x,y){return(dist(x)/y)}
+myrand<-function(x,z){return(apply(x+z,2,sample))}
+mytable<-SigTree(data.matrix(leukemia),mystat="fldc",
+	mymethod="ward",mymetric="mydist",rand.fun="myrand",
+	distrib="Rparallel",njobs=2,Ptail=TRUE,tailmethod="MOM",metric.args=list(3),
+	rand.args=list(2))
+plot(mytable,metric.args=list(3))
+plot(mytable,metric.args=list(3),cex.leaf=1.5)
 }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
