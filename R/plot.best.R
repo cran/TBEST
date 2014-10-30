@@ -10,7 +10,10 @@ plot.best<-function(x,mystat="fldc",siglevel=0.05,sigtype=c("raw","corrected","f
     	if (is.null(xlab)) 
         	xlab = paste("Distance: ", metric)
 	myinput<-clusterobj$data
-	if(data.class(myinput)=="dist")hc<-hclust(myinput,method=method)
+	if(data.class(myinput)=="dist"){
+		hc<-hclust(myinput,method=method)
+		myinput<-data.matrix(myinput)
+	}
         if(data.class(myinput)=="matrix"){
 		if(!(metric %in% c("euclidean","maximum","manhattan","canberra","binary","minkowski",
                 "pearson","kendall","spearman"))){

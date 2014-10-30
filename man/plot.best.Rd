@@ -100,7 +100,7 @@ data(leukemia)
 mytable<-SigTree(data.matrix(leukemia),mystat="all",
         mymethod="ward",mymetric="euclidean",rand.fun="shuffle.column",
         distrib="Rparallel",njobs=2,Ptail=TRUE,tailmethod="ML")
-plot(x=mytable,mystat="fldc",siglevel=0.001,sigtype="raw")
+plot(x=mytable,mystat="fldc",siglevel=0.001,sigtype="raw",hang=-1)
 mypartition<-PartitionTree(x=mytable,siglevel=0.001,statname="fldc",
         sigtype="raw")
 plot(x=mytable,mystat="fldc",partition=mypartition)

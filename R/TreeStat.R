@@ -53,7 +53,8 @@ function(myinput,mystat,method="complete",metric="euclidean",metric.args=list())
         fldc[indextable[indextable[,"index2"]>0,"index2"]]<-(hp-hc)/hp
         #NaN values occur hc==hp==0
         fldc[is.na(fldc)]<-0
-        #fldcc
+        fldc<-abs(fldc)
+	#fldcc
         fldcc<-rep(0,nrow(indextable))
         fldcs<-rep(0,nrow(indextable))
         hp<-indextable[,"height"]
@@ -89,11 +90,13 @@ function(myinput,mystat,method="complete",metric="euclidean",metric.args=list())
         bldc<-(2*indextable[,"height"]-hl-hr)/2/indextable[,"height"]
         #NaN values occur when node heightH==hl==hr
         bldc[is.na(bldc)]<-0
+	slb<-2*indextable[,"height"]-hl-hr
+        slb[is.na(slb)]<-0
         #output statistics
-	indextable<-cbind(indextable,clustersize,fldc,bldc,fldcc)
-        if(any(mystat=="all"))return(indextable)
+	indextable<-cbind(indextable,clustersize,fldc,bldc,fldcc,slb)
+        if(any(mystat=="all"))return(indextable[,-ncol(indextable)])
 	if(!any(mystat=="all")){
-		m<-4+match(mystat,c("fldc","bldc","fldcc"))
+		m<-4+match(mystat,c("fldc","bldc","fldcc","slb"))
 		indextable<-indextable[,c(1:4,m)]
 		return(indextable)
 	}

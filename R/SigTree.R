@@ -1,5 +1,5 @@
 SigTree <-
-function(myinput,mystat=c("all","fldc","bldc","fldcc"),mymethod="complete",mymetric="euclidean",
+function(myinput,mystat=c("all","fldc","bldc","fldcc","slb"),mymethod="complete",mymetric="euclidean",
 	rand.fun=NA,by.block=NA,distrib=c("vanilla","Rparallel"),Ptail=TRUE,tailmethod=c("ML","MOM"),
 	njobs=1,seed=NA,Nperm=ifelse(Ptail,1000,1000*nrow(myinput)),metric.args=list(),rand.args=list()){
 	if(!(mymetric %in% c("euclidean","maximum","manhattan","canberra","binary","minkowski",
@@ -10,17 +10,31 @@ function(myinput,mystat=c("all","fldc","bldc","fldcc"),mymethod="complete",mymet
                 }
 	indextable<-TreeStat(myinput,mystat,method=mymethod,metric=mymetric,metric.args=metric.args)
 	if(!is.na(rand.fun)){
-        if(class(myinput)!="matrix")stop("Inappropriate input data")
+        #if(class(myinput)!="matrix")stop("Inappropriate input data")
 	mystatname<-match.arg(mystat, several.ok = TRUE)
         if(any(mystatname=="all"))mystatname<-c("fldc","bldc","fldcc")
 	#size<-ceiling((nrow(indextable)+1)/10)*10
-	size<-nrow(myinput)
-	if(Nperm==ifelse(Ptail,1000,1000*nrow(myinput)))nperm<-size*1000
-	if(Nperm!=ifelse(Ptail,1000,1000*nrow(myinput)))nperm<-size*Nperm
+	size<-nrow(indextable)+1
+	if(rand.fun!="shuffle.column"&rand.fun!="shuffle.block"){
+                        define.function<-get(rand.fun)
+                        save(define.function,file=paste(getwd(),"/define.function",sep=""))
+                        rand.fun<-"define.function"
+        }
+	if(!is.na(Nperm))nperm<-Nperm
         if(nperm%%200!=0) batches<-c(rep(200,floor(nperm/200)),nperm%%200)
         if(nperm%%200==0) batches<-c(rep(200,floor(nperm/200)))
 	distrib<-match.arg(distrib)
-	if(distrib=="Rparallel"){
+	if(distrib!="Rparallel"){
+                if(!(mymetric %in% c("euclidean","maximum","manhattan","canberra","binary","minkowski",
+                "pearson","kendall","spearman"))){
+                        load(paste(getwd(),"/define.metric",sep=""))
+                        mymetric<-"define.metric"
+                }
+                if(rand.fun!="shuffle.column"&rand.fun!="shuffle.block"){
+                        load(paste(getwd(),"/define.function",sep=""))
+                        rand.fun<-"define.function"
+                }
+        }else if(distrib=="Rparallel"){
                 ncores<-min(njobs,length(batches),detectCores())
                 cl<-parallel::makeCluster(getOption("cl.cores",ncores))
 		if(!is.na(seed)) clusterSetRNGStream(cl,iseed=seed)
@@ -33,15 +47,15 @@ function(myinput,mystat=c("all","fldc","bldc","fldcc"),mymethod="complete",mymet
                 	mymetric<-"define.metric"
                 }
 		if(rand.fun!="shuffle.column"&rand.fun!="shuffle.block"){
-			define.function<-get(rand.fun)
-			save(define.function,file=paste(getwd(),"/define.function",sep=""))
+			#define.function<-get(rand.fun)
+			#save(define.function,file=paste(getwd(),"/define.function",sep=""))
                 	parallel::clusterEvalQ(cl=cl,expr={
 			load(paste(getwd(),"/define.function",sep=""))})
 			rand.fun<-"define.function"
 		}
-		}
+	}
 	if(Ptail){
-                if(Nperm==1000|(Nperm*size)>=10000){
+                if(nperm>=10000){
 			nperm<-1000
 			batches<-10
                		profpack<-vector(mode="list",length=batches)
@@ -54,7 +68,7 @@ function(myinput,mystat=c("all","fldc","bldc","fldcc"),mymethod="complete",mymet
                                 names(profpack[[pn]])<-c("nperm")
                                 profpack[[pn]]$nperm<-100
                 	}
-		}else if((Nperm*size)<10000){
+		}else if(nperm<10000){
 			profpack<-vector(mode="list",length=length(batches))
                 	for(pn in 1:length(batches)){
                         	#profpack[[pn]]<-vector(mode="list",length=2)
@@ -81,13 +95,20 @@ function(myinput,mystat=c("all","fldc","bldc","fldcc"),mymethod="complete",mymet
 			}
                 }
 		rm(processed)
+		if(any(mystatname!="slb")){
 		for(i in 1:length(mystatname)){
 			mytailcounts[[i]]<-matrix(nrow=nrow(indextable),data=mytailcounts[[i]])
 		}
 		names(mytailcounts)<-mystatname
 		jointcounts<-matrix(nrow=nrow(indextable),ncol=length(mystatname),
 			dimnames=list(c(1:nrow(indextable)),mystatname))
+		}else if(mystatname=="slb"){
+			mytailcounts[[1]]<-matrix(nrow=1,data=mytailcounts[[i]])
+			names(mytailcounts)<-"slb"
+			jointcounts<-matrix(ncol=1,nrow=1,dimnames=list(1,"slb"))
+		}
 		tailmethod<-match.arg(tailmethod)
+		if(any(mystatname!="slb")){
 		for(statname in mystatname){
 			mystat<-vector(mode="list",length=nrow(indextable))
 			for(pn in 1:nrow(indextable)){
@@ -100,6 +121,17 @@ function(myinput,mystat=c("all","fldc","bldc","fldcc"),mymethod="complete",mymet
 				vanilla=lapply(X=mystat,FUN=Pvalue,method=tailmethod,Nexcmax=min(150,nperm/4)),
 				Rparallel=parLapply(cl,X=mystat,fun=Pvalue,method=tailmethod,Nexcmax=min(150,nperm/4))))
 			jointcounts[jointcounts[,statname]==0,statname]<- .Machine$double.eps
+		}
+		}else if(mystatname=="slb"){
+			mystat<-vector(mode="list",length=1)
+			mystat[[1]]<-vector(mode="list",length=2)
+			names(mystat[[1]])<-c("x","y")
+                        mystat[[1]]$x<-indextable[nrow(indextable),"slb"]
+                        mystat[[1]]$y<-mytailcounts[[mystatname]]
+			jointcounts[,"slb"]<-unlist(switch(distrib,
+                                vanilla=lapply(X=mystat,FUN=Pvalue,method=tailmethod,Nexcmax=min(150,nperm/4)),
+                                Rparallel=parLapply(cl,X=mystat,fun=Pvalue,method=tailmethod,Nexcmax=min(150,nperm/4))))
+                        jointcounts[jointcounts[,"slb"]==0,"slb"]<- .Machine$double.eps
 		}
 		if(distrib=="Rparallel")stopCluster(cl)
         }
@@ -126,10 +158,11 @@ function(myinput,mystat=c("all","fldc","bldc","fldcc"),mymethod="complete",mymet
         	jointcounts<-(jointcounts+1)/(nperm+2)
 		if(distrib=="Rparallel")stopCluster(cl)
 	}
-        dimnames(jointcounts)[[2]]<-paste("p",dimnames(jointcounts)[[2]],sep="")
-	indextable<-cbind(indextable,jointcounts)
+        if(any(mystatname!="slb")){dimnames(jointcounts)[[2]]<-paste("p",dimnames(jointcounts)[[2]],sep="")
+	indextable<-cbind(indextable,jointcounts)}
+	else if(mystatname=="slb")indextable<-list(indextable,jointcounts)
 	if(rand.fun=="define.function"){system(paste("rm ",getwd(),"/define.function",sep=""))}
-	if(rand.fun=="define.metric"){system(paste("rm ",getwd(),"/define.metric",sep=""))}
+	if(mymetric=="define.metric"){system(paste("rm ",getwd(),"/define.metric",sep=""))}
 	clusterobj<-vector(mode="list",length=3)
 	names(clusterobj)<-c("Call","data","indextable")
 	clusterobj$Call<-match.call()

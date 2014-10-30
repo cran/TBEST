@@ -22,6 +22,7 @@ Pgpd<-function(y,x,N,Nexc,method,alpha,Z){
 			mydt<-unlist(lapply(X=1:100,FUN=function(x) optim(c(1,0),nll,z=sample(z,replace=T))$par))
 			mycov<-t(matrix(nrow=2,data=mydt))
 		}
+		if(any(is.na(parmhat))|parmhat[2]>=1){mycov<-matrix(nrow=2,ncol=2,data=NA)}
 	}
 	if(method=="MOM"){
 		xbar<-mean(z)
@@ -66,6 +67,7 @@ Pgpd<-function(y,x,N,Nexc,method,alpha,Z){
 			Phatci<-quantile(Re(mypci),c(alpha/2,1-alpha/2),na.rm=T)
 			}
 		}
+		if(all(is.na(mycov)))Phatci<-c(NA,NA)
 		p<-t(sort(p))
 		n<-length(p)
 		i<-1:n

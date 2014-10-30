@@ -39,7 +39,8 @@ function(mydata, myinput, mystat, mymethod, mymetric, rand.fun = c("shuffle.colu
         }
         rindextable <- TreeStat(myrdata, mystat = mystat, method = mymethod, 
             metric = mymetric, metric.args = metric.args)
-        size <-rindextable[,"clustersize"]	
+        size <-rindextable[,"clustersize"]
+	if(any(statnames!="slb")){	
 	for (statname in statnames) {
 		rstat <- rindextable[,statname]
 		statmax <- max(rstat)
@@ -54,6 +55,10 @@ function(mydata, myinput, mystat, mymethod, mymetric, rand.fun = c("shuffle.colu
 		if(i==1){nullstat[[statname]]<-mydata}
 		else{nullstat[[statname]]<-c(nullstat[[statname]],mydata)}
     	}
+	}else if(statnames=="slb"){
+		if(i==1){nullstat[[statnames]]<-rindextable[nrow(rindextable),"slb"]}
+		else{nullstat[[statnames]]<-c(nullstat[[statnames]],rindextable[nrow(rindextable),"slb"])}
+	}
 	}
     return(nullstat)
 }

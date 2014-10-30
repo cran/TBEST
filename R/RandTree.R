@@ -10,8 +10,8 @@ RandTree<-function(mydata, myinput, mystat, mymethod, mymetric, rand.fun = c("sh
     statnames <- mystat
     #nullstat <-vector("list",length(statnames))
     #names(nullstat) <- statnames
-    allcounts <- matrix(ncol = length(statnames), nrow = nrow(myinput) -
-        1, data = 0)
+    if(any(statnames=="slb")){slbcount<-rep(0,ntest)}
+    allcounts <- matrix(ncol = length(statnames), nrow = nrow(indextable), data = 0)
     colnames(allcounts) <- statnames
     for (i in 1:ntest) {
         if (rand.fun == "shuffle.column"){ 
@@ -41,6 +41,7 @@ RandTree<-function(mydata, myinput, mystat, mymethod, mymetric, rand.fun = c("sh
         }
         rindextable <- TreeStat(myrdata, mystat = mystat, method = mymethod, 
             metric = mymetric, metric.args = metric.args)
+	if(any(statnames!="slb")){
         size <-rindextable[,"clustersize"]
         for (statname in statnames) {
                 rstat <- rindextable[,statname]
@@ -58,6 +59,10 @@ RandTree<-function(mydata, myinput, mystat, mymethod, mymetric, rand.fun = c("sh
                 #if(i==1){nullstat[[statname]]<-mydata}
                 #else{nullstat[[statname]]<-c(nullstat[[statname]],mydata)}
         }
+	}else if(any(statnames=="slb")){
+		slbcount[i]<-sum(rindextable[nrow(rindextable),"slb"]>=indextable[nrow(rindextable),"slb"])
+	}
     }
+    if(any(statnames=="slb")){allcounts<-sum(slbcount)}
     return(list(allcounts, ntest))
 }

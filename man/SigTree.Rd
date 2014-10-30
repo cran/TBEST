@@ -8,7 +8,7 @@ Perform statistical analysis of tightness for branches of a hierarchical cluster
 Description: Given data from which a hierarchical tree is grown, compute measures of tightness for each branch, sample from the null distribution of these measures in the randomized data and compute the corresponding p-values.
 }
 \usage{
-SigTree(myinput,mystat=c("all","fldc","bldc","fldcc"),
+SigTree(myinput,mystat=c("all","fldc","bldc","fldcc","slb"),
         mymethod="complete",mymetric="euclidean",rand.fun=NA,
         by.block=NA,distrib=c("vanilla","Rparallel"),Ptail=TRUE,
         tailmethod=c("ML","MOM"),njobs=1,seed=NA,
@@ -21,7 +21,7 @@ SigTree(myinput,mystat=c("all","fldc","bldc","fldcc"),
 A matrix with rows corresponding to items to be clustered.
 }
   \item{mystat}{
-A character string specifying the measures of tightness to be computed and evaluated for significance of finding. See Details for the definitions of these measures. If \code{"all"} is chosen, all the measures and the corresponding p-values are computed. Otherwise, only the specified measure and its p-value are computed.
+A character string specifying the measures of tightness to be computed and evaluated for significance of finding. See Details for the definitions of these measures. If \code{"all"} is chosen, all the first three measures, \code{"fldc"}, \code{"bldc"} and \code{"fldcc"}, and the corresponding p-values are computed. Otherwise, only the specified measure and its p-value are computed.
 }
   \item{mymethod}{
 A character string specifying the linkage method for hierarchical clustering, to be used by the \code{hclust} function. See \code{hclust} argument \code{method} for method options.
@@ -80,6 +80,11 @@ bldc:
 
 \code{Sp = (2*hp-ha-hb)/(2*hp)}
 
+slb:
+
+\code{Sp = 2*hp-ha-hb}
+
+The first three measures test tightnss of all internal nodes at the same time, while \code{slb} only tests two-way split of input data. 
 The \code{seed} argument is optional. Setting the seed ensures reproducibility of sampling from the null distribution.
 }
 \value{
