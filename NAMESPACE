@@ -1,3 +1,7 @@
 S3method(plot,best)
 export(SigTree,PartitionTree,plot.best,LeafContent)
 import(parallel,signal,fdrtool)
+importFrom("graphics", "par", "text")
+importFrom("stats", "as.dist", "cor", "dist", "hclust", "optim",
+             "quantile", "rnorm", "var")
+importFrom("utils", "data")

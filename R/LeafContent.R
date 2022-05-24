@@ -1,10 +1,10 @@
 LeafContent<-function(myinput,mynode=NA){
-	if(class(myinput)=="best"){
+	if(inherits(myinput, "best")){
 		indextable=myinput$indextable[,1:4]
 		names<-dimnames(myinput$data)[[1]]
 		if(any(is.na(mynode)))stop("Inappropriate node number")
 	}
-	if(class(myinput)=="partition"){
+	if(inherits(myinput, "partition")){
                 indextable=myinput$best$indextable[,1:4];names<-dimnames(myinput$best$data)[[1]]
 		mynode=as.numeric(unique(myinput$partition[,2]))
 		if(any(mynode==nrow(indextable))){
@@ -15,7 +15,7 @@ LeafContent<-function(myinput,mynode=NA){
 			}
 		}
         }
-	if(class(myinput)=="hclust"){
+	if(inherits(myinput,"hclust")){
 		hc<-myinput
 		if(any(is.na(mynode)))stop("Inappropriate node number")
 		indextable<-cbind(hc$merge,hc$height)
@@ -35,7 +35,7 @@ LeafContent<-function(myinput,mynode=NA){
         	}
 		indextable<-cbind(indextable,clustersize)
 	}
-	if(class(mynode)!="numeric"&class(mynode)!="integer")stop("Inappropriate node number")
+	if(!inherits(mynode, "numeric") & !inherits(mynode, "integer")) stop("Inappropriate node number")
         if(max(mynode)>nrow(indextable))stop("Node number should be <= Sample Size - 1")
         if(min(mynode)< -(nrow(indextable)+1))stop("Node number should not be < -Sample Size")
 	if(length(which(mynode==0))!=0)stop("Node number can not be 0")
@@ -60,14 +60,14 @@ LeafContent<-function(myinput,mynode=NA){
                 membership[[i]]<-(-membership[[i]][membership[[i]]<0])
         }
 	for(i in 1:length(membership)){
-		if(class(myinput)=="hclust")clusters[[pos[[i]]]]<-hc$labels[membership[[i]]]
-                if(class(myinput)!="hclust")clusters[[pos[[i]]]]<-names[membership[[i]]]
+		if(inherits(myinput,"hclust"))clusters[[pos[[i]]]]<-hc$labels[membership[[i]]]
+                if(!inherits(myinput,"hclust"))clusters[[pos[[i]]]]<-names[membership[[i]]]
         	}
 	}
 	if(length(npos)!=0){
 	for(i in 1:length(npos)){
-		if(class(myinput)=="hclust")clusters[[npos[[i]]]]<-hc$labels[singleton[i]]
-		if(class(myinput)!="hclust")clusters[[npos[[i]]]]<-names[singleton[i]]
+		if(inherits(myinput,"hclust"))clusters[[npos[[i]]]]<-hc$labels[singleton[i]]
+		if(!inherits(myinput,"hclust"))clusters[[npos[[i]]]]<-names[singleton[i]]
 	}
 	}
 	return(clusters)
